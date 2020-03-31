@@ -1,61 +1,48 @@
 package subtask5
 
 class HighestPalindrome {
-}
+  fun highestValuePalindrome(n: Int, k: Int, digitString: String): String {
+    val dev = false
 
-
-fun HighestPalindrome.highestValuePalindrome(n: Int, k: Int, digitString: String): String {
-  fun isPol(str: String): Boolean {
-    for (i in 0..(str.length / 2 - 1))
-      if (str[i] != str[str.lastIndex - i]) 
-        return false
-    return true
-  }
-
-  class Oper(val numb: Int, val d: Int) {
-  }
-  val o = ArrayList<Oper>()
-  for (i in 0..n-1)
-    for (j in 0..9)
-      o.add(Oper(i, j))
-
-  val existPols = ArrayList<String>()
-  
-  val counter = IntArray(k)
-  fun turn(i: Int): Boolean {
-    if (counter[i] < o.lastIndex) {
-      counter[i]++
-      for (j in i+1..k-1) counter[j] = counter[i] + j - i
-      return true
-    } else {
-      if (i == 0) 
-        return false
-      else
-        return turn(i - 1)
+    assert(n == digitString.length)
+    assert(n / 2 == (n / 2) * 2)
+    var a = ""
+    var b = ""
+    for (i in 0..(digitString.length / 2 - 1)) {
+      a += digitString[i]
+      b += digitString[digitString.lastIndex - i]
     }
+    assert(a.length == b.length)
+
+    val change = (0..a.lastIndex).map{ a[it] != b[it] }
+    val notEdualDigits = change.filter{ it }.size
+
+    if (k < notEdualDigits) return "-1"
+
+    val halfRes = ArrayList((0..a.lastIndex).map { if (a[it] > b[it]) a[it] else b[it] })
+    var turns = k - notEdualDigits
+
+    for (i in 0..halfRes.lastIndex) {
+      if (turns == 0) break
+      if (change[i]) {
+        if (halfRes[i] == '9') continue
+        else { halfRes[i] = '9'; turns-- }
+      } else {
+        if (turns > 1) {
+          if (halfRes[i] == '9') continue
+          else { halfRes[i] = '9'; turns -=2 }
+        } else {
+          continue
+        }
+      }
+    }
+
+    if (dev) {
+      println("a: ${a.toList()}, b: ${b.toList()}")
+      println("notEdualDigits $notEdualDigits")
+      println("halfRes $halfRes")
+    }
+
+    return (halfRes + halfRes.reversed()).joinToString("")
   }
-  fun NextCounter(): Boolean {
-    return turn(k - 1)
-  }
-
-  do {
-    val curOs = ArrayList<Oper>()
-    for (counterInd in counter.indices)
-      curOs.add(o[counter[counterInd]])      
-    var str = ""
-    for (op in curOs.sortedBy{ it.numb }) 
-      str += op.d.toChar()
-    if (isPol(str)) existPols.add(str)
-  } while (NextCounter())
-
-
-  return if (existPols.size == 0) "-1" else existPols.max()!!
-}
-
-fun main() {
-  val pal = HighestPalindrome()
-
-  println(pal.highestValuePalindrome(4, 2, "1131"))
-
-
-}
+}     
